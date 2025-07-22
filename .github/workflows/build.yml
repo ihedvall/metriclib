@@ -1,0 +1,103 @@
+# https://docs.github.com/en/actions/learn-github-actions/contexts
+
+---
+name: dbclib
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+  page_build:
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+
+  build:
+    runs-on: ${{ matrix.env.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+
+        env:
+          - name: linux
+            os: ubuntu-latest
+            ninja_platform: linux
+            cmake_env: {}
+
+#          - name: macos
+#            os: macos-12
+#            ninja_platform: mac
+#            cmake_env:
+#              CC: clang
+#              CXX: clang++
+#            pack: 1
+#
+          - name: win64
+            os: windows-latest
+            ninja_platform: win
+            cmake_env: {}
+
+#
+#          - name: win32
+#            os: windows-latest
+#            ninja_platform: win
+#            msvc_arch: x86
+#            cmake_env:
+#              CMAKE_RC_FLAGS: "/C 1252"
+#              CC: clang
+#              CXX: clang++
+#              CMAKE_C_FLAGS: -m32
+#              CMAKE_CXX_FLAGS: -m32
+#            pack: 1
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+        with:
+          submodules: true
+
+      - name: NINJA Install
+        uses: seanmiddleditch/gha-setup-ninja@master
+        with:
+          platform: ${{ matrix.env.ninja_platform }}
+
+      - name: PYTHON Install
+        uses: actions/setup-python@main
+
+      - name: PYTEST Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest
+
+      - name: CMAKE Configure
+        env: ${{ matrix.env.cmake_env }}
+        run: cmake -G Ninja -B ${{github.workspace}}/build -D DBC_TEST=ON -D DBC_PYTHON=ON
+
+      - name: CMAKE Build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+      - name: CTEST Unit Test
+        if: ${{ matrix.env.ninja_platform != 'win'}}
+        working-directory: ${{github.workspace}}/build
+        # Execute tests defined by the CMake configuration.
+        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+        run: ctest -C ${{env.BUILD_TYPE}} --extra-verbose --output-on-failure
+
+      # install for testing
+#      - name: Install
+#        run: |
+#          cd ${{github.workspace}}/build/release
+#          sudo cmake --install .
+
+      # test if cmake finds the dbcLib automatically
+#      - name: TestInstall
+#        run: |
+#          cd test/TestdbclibCMake
+#          mkdir -p build
+#          cd build
+#          cmake -G Ninja ..
+#          ninja
+...

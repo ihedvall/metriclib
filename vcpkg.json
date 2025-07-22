@@ -1,0 +1,15 @@
+{
+  "name": "metric",
+  "version": "1.0",
+  "dependencies": [],
+    "features": {
+      "tests": {
+		"description": "Build Unit Tests",
+        "dependecies": []		
+	  }		  
+      "tools": {
+        "description": "Build GUI and daemons",
+        "dependencies": ["wxwidgets"]
+      }
+  }
+}
