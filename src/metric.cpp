@@ -30,8 +30,28 @@ std::string Metric::Name() const {
   return name_;
 }
 
-void Metric::Description(std::string name) {
-  SetStringProperty("description", std::move(name));
+void Metric::GroupName(std::string name) {
+  std::scoped_lock lock(metric_mutex_);
+  group_name_ = std::move(name);
+}
+
+std::string Metric::GroupName() const {
+  std::scoped_lock lock(metric_mutex_);
+  return group_name_;
+}
+
+void Metric::GroupIdentity(int64_t identity) {
+  std::scoped_lock lock(metric_mutex_);
+  group_identity_ = identity;
+}
+
+int64_t Metric::GroupIdentity() const {
+  std::scoped_lock lock(metric_mutex_);
+  return group_identity_;
+}
+
+void Metric::Description(std::string desc) {
+  SetStringProperty("description", std::move(desc));
 }
 
 std::string Metric::Description() const {
@@ -63,7 +83,7 @@ void Metric::Value(std::string value) {
       value_ = std::move(value);
     }
   }
-  IsValid(true);
+  Valid(true);
   if (updated) {
     SetUpdated();
   }
@@ -78,7 +98,7 @@ void Metric::Value(std::string_view value) {
       value_ = value;
     }
   }
-  IsValid(true);
+  Valid(true);
   if (updated) {
     SetUpdated();
   }
@@ -97,7 +117,7 @@ void Metric::Value(const char* value) {
       value_ = value;
     }
   }
-  IsValid(true);
+  Valid(true);
   if (updated) {
     SetUpdated();
   }
@@ -112,7 +132,7 @@ void Metric::Value(bool value) {
     value_ = value ? "1" : "0";
     updated = old_value != value_;
   }
-  IsValid(true);
+  Valid(true);
   if (updated) {
     SetUpdated();
   }
@@ -133,7 +153,7 @@ void Metric::Value(float value) {
       value_ = std::move(new_value);
     }
   }
-  IsValid(true);
+  Valid(true);
   if (updated) {
     SetUpdated();
   }
@@ -154,7 +174,7 @@ void Metric::Value(double value) {
       value_ = std::move(new_value);
     }
   }
-  IsValid(true);
+  Valid(true);
   if (updated) {
     SetUpdated();
   }
@@ -276,6 +296,130 @@ std::string Metric::GetStringProperty(const std::string &key) const {
     }
   }
   return {};
+}
+
+std::string_view Metric::DataTypeToString(MetricType data_type) {
+  switch (data_type) {
+    case MetricType::Unknown:
+      return "Unknown";
+
+    case MetricType::Int8:
+      return "8-bit Integer";
+
+    case MetricType::Int16:
+      return "16-bit Integer";
+
+    case MetricType::Int32:
+      return "32-bit Integer";
+
+    case MetricType::Int64:
+      return "64-bit Integer";
+
+    case MetricType::UInt8:
+      return "8-bit Unsigned Integer";
+
+    case MetricType::UInt16:
+      return "16-bit Unsigned Integer";
+
+    case MetricType::UInt32:
+      return "32-bit Unsigned Integer";
+
+    case MetricType::UInt64:
+      return "64-bit Unsigned Integer";
+
+    case MetricType::Float:
+      return "32-bit Float";
+
+    case MetricType::Double:
+      return "64-bit Float";
+
+    case MetricType::String:
+      return "String";
+
+    case MetricType::DateTime:
+      return "Date and Time";
+
+    case MetricType::Text:
+      return "Text";
+
+    case MetricType::Boolean:
+      return "Boolean";
+
+    case MetricType::UUID:
+      return "UUID";
+
+    case MetricType::DataSet:
+      return "Data Set";
+
+    case MetricType::Bytes:
+      return "Byte Array";
+
+    case MetricType::File:
+      return "File";
+
+    case MetricType::Template:
+      return "Template";
+
+    case MetricType::PropertySet:
+      return "Property Set";
+
+    case MetricType::PropertySetList:
+      return "Property Set List";
+
+    case MetricType::Int8Array:
+      return "8-bit Integer Array";
+
+    case MetricType::Int16Array:
+      return "16-bit Integer Array";
+
+    case MetricType::Int32Array:
+      return "32-bit Integer Array";
+
+    case MetricType::Int64Array:
+      return "64-bit Integer Array";
+
+    case MetricType::UInt8Array:
+      return "8-bit Unsigned Integer Array";
+
+    case MetricType::UInt16Array:
+      return "16-bit Unsigned Integer Array";
+
+    case MetricType::UInt32Array:
+      return "32-bit Unsigned Integer Array";
+
+    case MetricType::UInt64Array:
+      return "64-bit Unsigned Integer Array";
+
+    case MetricType::FloatArray:
+      return "32-bit Float Array";
+
+    case MetricType::DoubleArray:
+      return "64-bit Float Array";
+
+    case MetricType::BooleanArray:
+      return "Boolean Array";
+
+    case MetricType::StringArray:
+      return "StringArray";
+
+    case MetricType::DateTimeArray:
+      return "Date and Time Array";
+
+    default:
+      break;
+  }
+  return "";
+}
+
+MetricType Metric::StringToDataType(const std::string& data_type) {
+  for (int index = 0; index <= static_cast<int>(MetricType::DateTimeArray);
+       ++index) {
+    auto type = static_cast<MetricType>(index);
+    if (data_type == DataTypeToString(type)) {
+      return type;
+    }
+  }
+  return MetricType::Unknown;
 }
 
 } // end namespace

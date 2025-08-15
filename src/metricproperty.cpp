@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "metric/metricproperty.h"
+#include "metrichelper.h"
 
 namespace metric {
 
@@ -25,7 +26,7 @@ MetricProperty &MetricProperty::operator=(const MetricProperty &property) {
   value_ = property.value_;
   return *this;
 }
-void MetricProperty::IsNull(bool is_null) {
+void MetricProperty::Null(bool is_null) {
   std::scoped_lock lock(property_mutex_);
   is_null_ = is_null;
 }
@@ -106,6 +107,12 @@ void MetricProperty::Value(std::string value) {
 }
 
 template<>
+void MetricProperty::Value(std::string_view value) {
+  std::scoped_lock lock(property_mutex_);
+  value_ = value;
+}
+
+template<>
 void MetricProperty::Value(const char* value) {
   std::scoped_lock lock(property_mutex_);
   value_ = value != nullptr ? value : "";
@@ -115,6 +122,18 @@ template<>
 void MetricProperty::Value(bool value) {
   std::scoped_lock lock(property_mutex_);
   value_ = value ? "1" : "0";
+}
+
+template<>
+void MetricProperty::Value(float value) {
+  std::scoped_lock lock(property_mutex_);
+  value_ = FloatToString(value);
+}
+
+template<>
+void MetricProperty::Value(double value) {
+  std::scoped_lock lock(property_mutex_);
+  value_ = DoubleToString(value);
 }
 
 } // pub_sub

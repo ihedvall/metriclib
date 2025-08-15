@@ -10,6 +10,9 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(metric-test
         src/test_metric.cpp
         src/test_metrichelper.cpp
+        src/test_metricproperty.cpp
+        src/test_metricgroup.cpp
+        src/test_metricdatabase.cpp
 )
 
 target_include_directories(metric-test PRIVATE

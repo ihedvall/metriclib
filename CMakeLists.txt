@@ -57,6 +57,10 @@ add_library(metric-lib
         include/metric/metrictype.h
         src/metrichelper.cpp
         src/metrichelper.h
+        src/metricgroup.cpp
+        include/metric/metricgroup.h
+        src/metricdatabase.cpp
+        include/metric/metricdatabase.h
 )
 
 target_include_directories(metric-lib PUBLIC

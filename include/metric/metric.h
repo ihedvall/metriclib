@@ -32,11 +32,17 @@ class Metric {
   void Name(std::string name);
   [[nodiscard]] std::string Name() const;
 
-  void Alias(uint64_t alias) {
-    alias_ = alias;
+  void GroupName(std::string name);
+  [[nodiscard]] std::string GroupName() const;
+
+  void GroupIdentity(int64_t identity);
+  [[nodiscard]] int64_t GroupIdentity() const;
+
+  void Identity(uint64_t alias) {
+    identity_ = alias;
   }
-  [[nodiscard]] uint64_t Alias() const {
-    return alias_;
+  [[nodiscard]] uint64_t Identity() const {
+    return identity_;
   }
 
   void Timestamp(uint64_t ms_since_1970) {
@@ -53,43 +59,46 @@ class Metric {
   void Unit(const std::string& unit);
   [[nodiscard]] std::string Unit() const;
 
-  void Type(MetricType type) {
-    datatype_ = type;
+  void DataType(MetricType type) {
+    data_type_ = type;
   }
 
-  [[nodiscard]] MetricType Type() const {
-    return datatype_;
+  [[nodiscard]] MetricType DataType() const {
+    return data_type_;
   }
 
-  void IsHistorical(bool historical_value) {
+  static std::string_view DataTypeToString(MetricType data_type);
+  static MetricType StringToDataType(const std::string& data_type);
+
+  void Historical(bool historical_value) {
     is_historical_ = historical_value;
   }
   [[nodiscard]] bool IsHistorical() const {
     return is_historical_;
   }
 
-  void IsTransient(bool transient_value) {
+  void Transient(bool transient_value) {
     is_transient_ = transient_value;
   }
   [[nodiscard]] bool IsTransient() const {
     return is_transient_;
   }
 
-  void IsNull(bool null_value) {
+  void Null(bool null_value) {
     is_null_ = null_value;
   }
   [[nodiscard]] bool IsNull() const {
     return is_null_;
   }
 
-  void IsValid(bool valid) const {
+  void Valid(bool valid) const {
     valid_ = valid;
   }
   [[nodiscard]] bool IsValid() const {
     return valid_;
   }
 
-  void IsReadWrite(bool read_only) {
+  void ReadOnly(bool read_only) {
     read_only_ = read_only;
   }
   [[nodiscard]] bool IsReadOnly() const {
@@ -121,9 +130,11 @@ class Metric {
 
  private:
   std::string name_;
-  std::atomic<uint64_t> alias_ = 0;
+  std::string group_name_;
+  int64_t group_identity_;
+  std::atomic<uint64_t> identity_ = 0;
   std::atomic<uint64_t> timestamp_ = 0;
-  std::atomic<MetricType> datatype_ = MetricType::String;
+  std::atomic<MetricType> data_type_ = MetricType::String;
   std::atomic<bool> is_historical_ = false;
   std::atomic<bool> is_transient_ = false;
   std::atomic<bool> is_null_ = false;
@@ -155,12 +166,12 @@ void Metric::Value(T value) {
         value_ = std::move(new_value);
       }
     }
-    IsValid(true);
+    Valid(true);
     if (updated) {
       SetUpdated();
     }
   } catch (const std::exception& ) {
-    IsValid(false);
+    Valid(false);
   }
 
 }
@@ -169,7 +180,7 @@ template<>
 void Metric::Value(std::string value);
 
 template<>
-void Metric::Value(std::string_view& value);
+void Metric::Value(std::string_view value);
 
 template<>
 void Metric::Value(const char* value);
@@ -192,7 +203,7 @@ T Metric::Value() const {
     std::istringstream str(value_);
     str >> temp;
   } catch (const std::exception& ) {
-    IsValid(false);
+    Valid(false);
   }
   return temp;
 }

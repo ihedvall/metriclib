@@ -32,10 +32,10 @@ class MetricProperty {
   void Key(const std::string& key) { key_ = key;}
   [[nodiscard]] const std::string& Key() const { return key_;}
 
-  void Type(MetricType type) { type_ = type;}
-  [[nodiscard]] MetricType Type() const { return type_;}
+  void DataType(MetricType type) { type_ = type;}
+  [[nodiscard]] MetricType DataType() const { return type_;}
 
-  void IsNull(bool is_null);
+  void Null(bool is_null);
   [[nodiscard]] bool IsNull() const;
 
   template <typename T>
@@ -71,10 +71,19 @@ template<>
 void MetricProperty::Value(std::string value);
 
 template<>
+void MetricProperty::Value(std::string_view value);
+
+template<>
 void MetricProperty::Value(const char* value);
 
 template<>
 void MetricProperty::Value(bool value);
+
+template<>
+void MetricProperty::Value(float value);
+
+template<>
+void MetricProperty::Value(double value);
 
 template <typename T>
 [[nodiscard]] T MetricProperty::Value() const {
