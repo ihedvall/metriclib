@@ -5,11 +5,11 @@
     "features": {
       "tests": {
 		"description": "Build Unit Tests",
-        "dependecies": []		
-	  }		  
+        "dependencies": []
+	  },
       "tools": {
         "description": "Build GUI and daemons",
-        "dependencies": ["wxwidgets"]
+        "dependencies": []
       }
   }
 }
