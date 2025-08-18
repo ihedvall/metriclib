@@ -24,7 +24,7 @@ jobs:
       - name: CMAKE Configure
         run: >
           cmake -B ${{github.workspace}}/build 
-          -D METRIC_TOOLS=OFF -D MTERIC_TEST=ON -D METRIC_DOC=OFF 
+          -D METRIC_TOOLS=OFF -D METRIC_TEST=ON -D METRIC_DOC=OFF 
           -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} 
           -D CMAKE_TOOLCHAIN_FILE=${{env.VCPKG_FILE}}
 
