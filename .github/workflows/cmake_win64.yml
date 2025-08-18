@@ -1,0 +1,39 @@
+---
+name: CMake Build Windows
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  page_build:
+  workflow_dispatch:
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+  VCPKG_FILE: C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+jobs:
+  windows-64bit:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: CMAKE Configure
+        run: >
+          cmake -B ${{github.workspace}}/build 
+          -D METRIC_TOOLS=OFF -D METRIC_TEST=ON -D METRIC_DOC=OFF 
+          -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} 
+          -D CMAKE_TOOLCHAIN_FILE=${{env.VCPKG_FILE}}
+
+      - name: CMake Build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+      - name: Unit Test
+        working-directory: ${{github.workspace}}/build
+        # Execute tests defined by the CMake configuration.
+        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+        run: ctest -C ${{env.BUILD_TYPE}}
+...
