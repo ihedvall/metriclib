@@ -21,8 +21,6 @@ namespace metric {
  * @brief The Metric class represents a generic value with various properties.
  *
  */
- class Metric;
-
 class Metric {
  public:
   Metric() = default;
@@ -131,7 +129,7 @@ class Metric {
  private:
   std::string name_;
   std::string group_name_;
-  int64_t group_identity_;
+  int64_t group_identity_ = 0;
   std::atomic<uint64_t> identity_ = 0;
   std::atomic<uint64_t> timestamp_ = 0;
   std::atomic<MetricType> data_type_ = MetricType::String;

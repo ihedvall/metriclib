@@ -46,30 +46,30 @@ class MetricDatabase {
   [[nodiscard]] virtual bool IsEnabled() const {return enabled_; }
   [[nodiscard]] virtual bool IsOperable() const {return operable_; }
 
-  virtual MetricGroup* CreateGroup(std::string name, int32_t identity);
+  virtual std::shared_ptr<MetricGroup> CreateGroup(std::string name,
+                                                   int32_t identity);
   void DeleteGroup(std::string name, uint32_t identity);
 
-  const std::vector<std::unique_ptr<MetricGroup>>& Groups() const {
+  const std::vector<std::shared_ptr<MetricGroup>>& Groups() const {
     return group_list_;
   }
 
-  MetricGroup* GetGroupByName(const std::string& name) const;
-  MetricGroup* GetGroupByIdentity(int64_t identity) const;
+  std::shared_ptr<MetricGroup> GetGroupByName(const std::string& name) const;
+  std::shared_ptr<MetricGroup> GetGroupByIdentity(int64_t identity) const;
   void SortGroups();
 
-
-  virtual Metric* CreateMetric(const MetricGroup& group, std::string name);
+  virtual std::shared_ptr<Metric> CreateMetric(const MetricGroup& group, std::string name);
   void DeleteMetric(const MetricGroup& group, std::string name);
-  const std::vector<std::unique_ptr<Metric>>& Metrics() const {
+  const std::vector<std::shared_ptr<Metric>>& Metrics() const {
     return metric_list_;
   }
-  std::vector<Metric*> MetricsByName() const;
-  std::vector<Metric*> MetricsByGroupName(const std::string& group_name) const;
-  std::vector<Metric*> MetricsByGroupIdentity(int64_t group_identity) const;
+  std::vector<std::shared_ptr<Metric>> MetricsByName() const;
+  std::vector<std::shared_ptr<Metric>> MetricsByGroupName(const std::string& group_name) const;
+  std::vector<std::shared_ptr<Metric>> MetricsByGroupIdentity(int64_t group_identity) const;
 
-  Metric* GetMetricByGroupName(const std::string& group_name,
+  std::shared_ptr<Metric> GetMetricByGroupName(const std::string& group_name,
                            const std::string& metric_name) const;
-  Metric* GetMetricByGroupIdentity(int64_t group_identity,
+  std::shared_ptr<Metric> GetMetricByGroupIdentity(int64_t group_identity,
                                   const std::string& metric_name) const;
   void SortMetricsByGroup();
   void SortMetricsByName();
@@ -78,8 +78,8 @@ class MetricDatabase {
   std::atomic<bool> operable_ = false;
   TypeOfDatabase type_ = TypeOfDatabase::Unknown;
 
-  std::vector<std::unique_ptr<MetricGroup>> group_list_;
-  std::vector<std::unique_ptr<Metric>> metric_list_;
+  std::vector<std::shared_ptr<MetricGroup>> group_list_;
+  std::vector<std::shared_ptr<Metric>> metric_list_;
  private:
   std::string name_;
   std::string description_;

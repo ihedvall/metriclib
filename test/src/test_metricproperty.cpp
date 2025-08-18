@@ -70,6 +70,11 @@ TEST(MetricProperty, TestValues) {
   prop.Value(string_value);
   EXPECT_EQ(prop.Value<std::string>(), string_value);
 
+  constexpr std::string_view char_value = "Queen";
+  prop.DataType(MetricType::String);
+  prop.Value(char_value.data());
+  EXPECT_EQ(prop.Value<std::string>(), char_value);
+
   prop.DataType(MetricType::DateTime);
   prop.Value<uint64_t>(0);
   EXPECT_EQ(prop.Value<uint64_t>(), 0);

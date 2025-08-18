@@ -47,20 +47,21 @@ endif()
 
 set(METRIC_HEADERS
     include/metric/metric.h
+    include/metric/metricdatabase.h
+    include/metric/metricgroup.h
     include/metric/metrictype.h
     include/metric/metricproperty.h
+    include/metric/topic.h
 )
 
 add_library(metric-lib
         src/metric.cpp include/metric/metric.h
         src/metricproperty.cpp include/metric/metricproperty.h
         include/metric/metrictype.h
-        src/metrichelper.cpp
-        src/metrichelper.h
-        src/metricgroup.cpp
-        include/metric/metricgroup.h
-        src/metricdatabase.cpp
-        include/metric/metricdatabase.h
+        src/metrichelper.cpp  src/metrichelper.h
+        src/metricgroup.cpp include/metric/metricgroup.h
+        src/metricdatabase.cpp include/metric/metricdatabase.h
+        src/topic.cpp include/metric/topic.h
 )
 
 target_include_directories(metric-lib PUBLIC

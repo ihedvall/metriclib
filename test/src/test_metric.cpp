@@ -47,50 +47,56 @@ TEST(Metric, TestProperties) {
   metric.Historical(false);
   EXPECT_FALSE(metric.IsHistorical());
 
-    metric.Transient(true);
-    EXPECT_TRUE(metric.IsTransient());
-    metric.Transient(false);
-    EXPECT_FALSE(metric.IsTransient());
+  metric.Transient(true);
+  EXPECT_TRUE(metric.IsTransient());
+  metric.Transient(false);
+  EXPECT_FALSE(metric.IsTransient());
 
-    metric.Null(true);
-    EXPECT_TRUE(metric.IsNull());
-    metric.Null(false);
-    EXPECT_FALSE(metric.IsNull());
+  metric.Null(true);
+  EXPECT_TRUE(metric.IsNull());
+  metric.Null(false);
+  EXPECT_FALSE(metric.IsNull());
 
-    metric.Valid(true);
-    EXPECT_TRUE(metric.IsValid());
-    metric.Valid(false);
-    EXPECT_FALSE(metric.IsValid());
+  metric.Valid(true);
+  EXPECT_TRUE(metric.IsValid());
+  metric.Valid(false);
+  EXPECT_FALSE(metric.IsValid());
 
-    metric.Valid(true);
-    EXPECT_TRUE(metric.IsValid());
-    metric.Valid(false);
-    EXPECT_FALSE(metric.IsValid());
+  metric.Valid(true);
+  EXPECT_TRUE(metric.IsValid());
+  metric.Valid(false);
+  EXPECT_FALSE(metric.IsValid());
 
-    metric.ReadOnly(true);
-    EXPECT_TRUE(metric.IsReadOnly());
-    metric.ReadOnly(false);
-    EXPECT_FALSE(metric.IsReadOnly());
+  metric.ReadOnly(true);
+  EXPECT_TRUE(metric.IsReadOnly());
+  metric.ReadOnly(false);
+  EXPECT_FALSE(metric.IsReadOnly());
 
-    EXPECT_EQ(metric.Properties().size(), 2); // Description, Unit should exist
-    MetricProperty partner_prop("Partner","Goofy");
-    metric.AddProperty(partner_prop);
-    EXPECT_EQ(metric.Properties().size(), 3);
-    EXPECT_TRUE(metric.GetProperty("Partner") != nullptr);
-    metric.DeleteProperty("Partner");
-    EXPECT_EQ(metric.Properties().size(), 2);
+  EXPECT_EQ(metric.Properties().size(), 2); // Description, Unit should exist
+  MetricProperty partner_prop("Partner","Goofy");
+  metric.AddProperty(partner_prop);
 
-    const auto* goofy_prop = metric.CreateProperty("Partner");
-    EXPECT_TRUE(goofy_prop != nullptr);
-    EXPECT_EQ(metric.Properties().size(), 3);
-    EXPECT_TRUE(metric.GetProperty("Partner") != nullptr);
-    metric.DeleteProperty("Partner");
-    EXPECT_EQ(metric.Properties().size(), 2);
+  EXPECT_EQ(metric.Properties().size(), 3);
+  EXPECT_TRUE(metric.GetProperty("Partner") != nullptr);
 
-    metric.SetUpdated();
-    EXPECT_TRUE(metric.IsUpdated());
-    metric.ResetUpdated();
-    EXPECT_FALSE(metric.IsUpdated());
+  const auto* const_metric = &metric;
+  const auto* const_prop =  const_metric->GetProperty("Partner");
+  EXPECT_TRUE(const_prop != nullptr);
+
+  metric.DeleteProperty("Partner");
+  EXPECT_EQ(metric.Properties().size(), 2);
+
+  const auto* goofy_prop = metric.CreateProperty("Partner");
+  EXPECT_TRUE(goofy_prop != nullptr);
+  EXPECT_EQ(metric.Properties().size(), 3);
+  EXPECT_TRUE(metric.GetProperty("Partner") != nullptr);
+  metric.DeleteProperty("Partner");
+  EXPECT_EQ(metric.Properties().size(), 2);
+
+  metric.SetUpdated();
+  EXPECT_TRUE(metric.IsUpdated());
+  metric.ResetUpdated();
+  EXPECT_FALSE(metric.IsUpdated());
 }
 
 TEST(Metric, TestValues) {
@@ -132,6 +138,11 @@ TEST(Metric, TestValues) {
   metric.DataType(MetricType::String);
   metric.Value(string_value);
   EXPECT_EQ(metric.Value<std::string>(), string_value);
+
+  constexpr std::string_view char_value = "King";
+  metric.DataType(MetricType::String);
+  metric.Value(char_value.data());
+  EXPECT_EQ(metric.Value<std::string>(), char_value);
 
   metric.DataType(MetricType::DateTime);
   metric.Value<uint64_t>(0);

@@ -1,7 +1,7 @@
 # https://docs.github.com/en/actions/learn-github-actions/contexts
 
 ---
-name: dbclib
+name: metriclib
 on:
   push:
     branches:
@@ -64,23 +64,15 @@ jobs:
         with:
           platform: ${{ matrix.env.ninja_platform }}
 
-      - name: PYTHON Install
-        uses: actions/setup-python@main
-
-      - name: PYTEST Install
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install pytest
-
       - name: CMAKE Configure
         env: ${{ matrix.env.cmake_env }}
-        run: cmake -G Ninja -B ${{github.workspace}}/build -D DBC_TEST=ON -D DBC_PYTHON=ON
+        run: cmake -G Ninja -B ${{github.workspace}}/build -D METRIC_TEST=ON
 
       - name: CMAKE Build
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
       - name: CTEST Unit Test
-        if: ${{ matrix.env.ninja_platform != 'win'}}
+        #if: ${{ matrix.env.ninja_platform != 'win'}}
         working-directory: ${{github.workspace}}/build
         # Execute tests defined by the CMake configuration.
         # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail

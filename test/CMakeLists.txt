@@ -13,6 +13,7 @@ add_executable(metric-test
         src/test_metricproperty.cpp
         src/test_metricgroup.cpp
         src/test_metricdatabase.cpp
+        src/test_topic.cpp
 )
 
 target_include_directories(metric-test PRIVATE

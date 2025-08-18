@@ -30,7 +30,7 @@ TEST(MetricDatabase, TestProperties) {
   EXPECT_FALSE(database.IsEnabled());
   EXPECT_FALSE(database.IsOperable());
 
-  const auto* group = database.CreateGroup("Godzilla", 1);
+  const auto group = database.CreateGroup("Godzilla", 1);
   ASSERT_TRUE(group != nullptr);
   EXPECT_EQ(group->Name(), "Godzilla");
   EXPECT_EQ(group->Identity(), 1);
@@ -38,9 +38,9 @@ TEST(MetricDatabase, TestProperties) {
   database.DeleteGroup(group->Name(), group->Identity());
   EXPECT_EQ(database.Groups().size(), 0);
 
-  const auto* godzilla_group = database.CreateGroup("Godzillas", 123);
+  const auto godzilla_group = database.CreateGroup("Godzillas", 123);
   ASSERT_TRUE(godzilla_group != nullptr);
-  const auto* metric = database.CreateMetric(*godzilla_group, "Godzilla");
+  const auto metric = database.CreateMetric(*godzilla_group, "Godzilla");
   ASSERT_TRUE(metric != nullptr);
   EXPECT_EQ(database.Metrics().size(),1);
   database.DeleteMetric(*godzilla_group, "Godzilla");
@@ -63,16 +63,16 @@ TEST(MetricDatabase, TestSorting) {
   database.Name("Kaiju World");
   database.Description("World of monsters");
 
-  const auto* king_kong_group = database.CreateGroup("King Kongs", 101);
+  const auto king_kong_group = database.CreateGroup("King Kongs", 101);
   ASSERT_EQ(database.Groups().size(), 1);
-  const auto* metric1 = database.CreateMetric(*king_kong_group, "King Kong 1");
-  const auto* metric2 = database.CreateMetric(*king_kong_group, "King Kong 2");
+  const auto metric1 = database.CreateMetric(*king_kong_group, "King Kong 1");
+  const auto metric2 = database.CreateMetric(*king_kong_group, "King Kong 2");
   ASSERT_EQ(database.Metrics().size(), 2);
 
-  const auto* godzilla_group = database.CreateGroup("Godzillas", 101);
+  const auto godzilla_group = database.CreateGroup("Godzillas", 101);
   ASSERT_EQ(database.Groups().size(), 2);
-  const auto* metric3 = database.CreateMetric(*godzilla_group, "Godzilla 2");
-  const auto* metric4 = database.CreateMetric(*godzilla_group, "Godzilla 1");
+  const auto metric3 = database.CreateMetric(*godzilla_group, "Godzilla 2");
+  const auto metric4 = database.CreateMetric(*godzilla_group, "Godzilla 1");
 
   ASSERT_EQ(database.Metrics().size(), 4);
 
@@ -106,29 +106,29 @@ TEST(MetricDatabase, TestAccess) {
   database.Name("Kaiju World");
   database.Description("World of monsters");
 
-  const auto* king_kong_group = database.CreateGroup("King Kongs", 101);
-  const auto* metric1 = database.CreateMetric(*king_kong_group, "King Kong 1");
-  const auto* metric2 = database.CreateMetric(*king_kong_group, "King Kong 2");
+  const auto king_kong_group = database.CreateGroup("King Kongs", 101);
+  const auto metric1 = database.CreateMetric(*king_kong_group, "King Kong 1");
+  const auto metric2 = database.CreateMetric(*king_kong_group, "King Kong 2");
 
-  const auto* godzilla_group = database.CreateGroup("Godzillas", 102);
-  const auto* metric3 = database.CreateMetric(*godzilla_group, "Godzilla 2");
-  const auto* metric4 = database.CreateMetric(*godzilla_group, "Godzilla 1");
+  const auto godzilla_group = database.CreateGroup("Godzillas", 102);
+  const auto metric3 = database.CreateMetric(*godzilla_group, "Godzilla 2");
+  const auto metric4 = database.CreateMetric(*godzilla_group, "Godzilla 1");
   EXPECT_EQ(database.Groups().size(), 2);
   EXPECT_EQ(database.Metrics().size(), 4);
 
-  const auto* godzilla = database.GetGroupByName("Godzillas");
+  const auto godzilla = database.GetGroupByName("Godzillas");
   EXPECT_TRUE(godzilla != nullptr);
   EXPECT_EQ(godzilla_group, godzilla);
 
-  const auto* king_kong = database.GetGroupByIdentity(101);
+  const auto king_kong = database.GetGroupByIdentity(101);
   EXPECT_TRUE(king_kong != nullptr);
   EXPECT_EQ(king_kong_group, king_kong);
 
-  const auto* godzilla1 = database.GetMetricByGroupName("Godzillas", "Godzilla 1");
+  const auto godzilla1 = database.GetMetricByGroupName("Godzillas", "Godzilla 1");
   EXPECT_TRUE(godzilla1 != nullptr);
   EXPECT_EQ(godzilla1, metric4);
 
-  const auto* king_kong1 = database.GetMetricByGroupIdentity(101, "King Kong 1");
+  const auto king_kong1 = database.GetMetricByGroupIdentity(101, "King Kong 1");
   EXPECT_TRUE(king_kong1 != nullptr);
   EXPECT_EQ(king_kong1, metric1);
 
