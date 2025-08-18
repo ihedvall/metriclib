@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: MIT
  */
 #include <string_view>
+#include <cstring>
+#include <sstream>
+#include <algorithm>
 
 #include "metric/topic.h"
 

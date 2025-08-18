@@ -1,10 +1,10 @@
 ---
-name: CMake Build Windows
+name: Build MetricLib Windows
 
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
   page_build:
   workflow_dispatch:
