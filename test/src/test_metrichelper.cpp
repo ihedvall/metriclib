@@ -71,3 +71,27 @@ TEST(MetricHelper, TestDouble) {
     std::cout << double_str << std::endl;
   }
 }
+
+TEST(MetricHelper, NowNs) {
+  const uint64_t now = NowNs();
+  EXPECT_GT(now, 0);
+}
+
+TEST(MetricHelper, NanoSecToIso8601) {
+  const uint64_t now = NowNs();
+  const std::string iso_time = NanoSecToIso8601(now);
+  std::cout << iso_time << std::endl;
+  EXPECT_GT(now, 0);
+  EXPECT_TRUE(iso_time.find(".") != std::string::npos);
+}
+
+TEST(MetricHelper,Iso8601ToNanoSec) {
+  const uint64_t now = NowNs();
+  const std::string iso_time = NanoSecToIso8601(now);
+  std::cout << iso_time << std::endl;
+  EXPECT_GT(now, 0);
+  EXPECT_TRUE(iso_time.find(".") != std::string::npos);
+
+  const uint64_t ref_time = Iso8601ToNanoSec(iso_time);
+  EXPECT_EQ(ref_time, now);
+}

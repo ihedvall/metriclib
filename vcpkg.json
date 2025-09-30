@@ -3,13 +3,17 @@
   "version": "1.0",
   "dependencies": [],
     "features": {
+      "mqtt": {
+        "description": "Build MQTT metric library",
+        "dependencies": ["boost-mqtt5"]
+      },
       "tests": {
 		"description": "Build Unit Tests",
         "dependencies": []
 	  },
       "tools": {
         "description": "Build GUI and daemons",
-        "dependencies": []
+        "dependencies": ["wxwidgets"]
       }
   }
 }

@@ -8,7 +8,7 @@
 #include <algorithm>
 
 #include "metric/topic.h"
-
+#include "metric/metric.h"
 namespace {
 constexpr std::string_view kSparkplugNamespace = "spBv1.0";
 }
@@ -124,6 +124,20 @@ void Topic::AssignLevelName(size_t level, const std::string &name) {
   }
 }
 
+std::shared_ptr<Metric> Topic::CreateMetric(std::string metric_name) {
+  std::scoped_lock lock(topic_mutex_);
+  auto itr = std::ranges::find_if(metric_list_,
+    [&] (auto& metric) -> bool {
+    return metric && metric->Name() == metric_name;
+  });
+  if (itr != metric_list_.end()) {
+    return *itr;
+  }
+  auto metric = std::make_shared<Metric>(std::move(metric_name));
+  metric_list_.emplace_back(std::move(metric));
+  return metric_list_.back();
+}
+
 void Topic::AddMetric(const std::shared_ptr<Metric>& metric) {
   std::scoped_lock lock(topic_mutex_);
   return metric_list_.push_back(metric);
@@ -144,12 +158,41 @@ std::shared_ptr<Metric> Topic::GetMetric(const std::string &name) const {
   return itr != metric_list_.end() ? *itr : std::shared_ptr<Metric>();
 }
 
-void Topic::SetAllMetricsInvalid() {
+void Topic::SetAllMetricsInvalid() const {
   std::scoped_lock lock(topic_mutex_);
   for ( const auto& metric : metric_list_ ) {
     if (metric) {
       metric->Valid(false);
     }
+  }
+}
+
+void Topic::OnMessage() {
+  if (message_callback_) {
+    message_callback_();
+  }
+}
+
+void Topic::OnPublish() {}
+
+std::string Topic::BodyToString() const {
+  if (body_.empty()) {
+    return {};
+  }
+  std::string text(body_.cbegin(), body_.cend());
+  return text;
+}
+
+void Topic::StringToBody(const std::string& text) {
+  if (text.empty()) {
+    body_.clear();
+    return;
+  }
+  try {
+    body_.resize(text.size());
+    std::copy_n(text.cbegin(), body_.size(), body_.begin());
+  } catch (const std::exception& err) {
+    body_.clear();
   }
 }
 

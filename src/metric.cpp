@@ -2,11 +2,11 @@
  * Copyright 2025 Ingemar Hedvall
  * SPDX-License-Identifier: MIT
  */
+#include <utility>
 
 #include "metric/metric.h"
-
-#include <utility>
 #include "metrichelper.h"
+
 
 namespace metric {
 
@@ -18,6 +18,10 @@ Metric::Metric(std::string  name)
 
 Metric::Metric(const std::string_view& name)
     : name_(name.data()) {
+}
+
+Metric::Metric(const char* name)
+    : name_(name != nullptr ? name : "") {
 }
 
 void Metric::Name(std::string name) {

@@ -13,12 +13,18 @@ option(BUILD_SHARED_LIBS "Static libraries are preferred" OFF)
 option(METRIC_DOC "If doxygen is installed, then build documentation in Release mode" OFF)
 option(METRIC_TOOLS "Building applications" OFF)
 option(METRIC_TEST "Building unit test" OFF)
+option(METRIC_MQTT "Building MQTT metric library" OFF)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+if (METRIC_MQTT)
+    list(APPEND VCPKG_MANIFEST_FEATURES "mqtt")
+endif()
 
 if(METRIC_TEST AND USE_VCPKG)
     list(APPEND VCPKG_MANIFEST_FEATURES "tests")
 endif()
+
 if(METRIC_TOOLS AND USE_VCPKG)
     list(APPEND VCPKG_MANIFEST_FEATURES "tools")
 endif()
@@ -31,6 +37,14 @@ project(metriclib
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_DEBUG_POSTFIX d)
+if (METRIC_TEST)
+    set(METRIC_MQTT ON)
+endif()
+
+if (METRIC_MQTT)
+    include(script/mqtt.cmake)
+    include(script/json.cmake)
+endif()
 
 if (METRIC_TOOLS)
     include(script/wxwidgets.cmake)
@@ -62,6 +76,9 @@ add_library(metric-lib
         src/metricgroup.cpp include/metric/metricgroup.h
         src/metricdatabase.cpp include/metric/metricdatabase.h
         src/topic.cpp include/metric/topic.h
+        src/metricnode.cpp include/metric/metricnode.h
+        src/metriclogstream.cpp include/metric/metriclogstream.h
+        src/metriclisten.cpp include/metric/metriclisten.h
 )
 
 target_include_directories(metric-lib PUBLIC
@@ -76,6 +93,10 @@ if (MSVC)
     target_compile_definitions(metric-lib PRIVATE _WIN32_WINNT=0x0A00)
 endif ()
 
+if (METRIC_MQTT)
+    add_subdirectory(mqtt)
+endif()
+
 if (METRIC_TEST)
     enable_testing()
     add_subdirectory(test)
@@ -88,7 +109,7 @@ if (DOXYGEN_FOUND AND METRIC_DOC)
     set(DOXYGEN_HTML_EXTRA_STYLESHEET doxygen/metriclib.css)
     set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs/manual)
     doxygen_add_docs(metric-doc ALL
-            include/metric doxygen
+            include/metric include/mqtt doxygen
             COMMENT "Metric Library generating API documentation with Doxygen")
 endif ()
 

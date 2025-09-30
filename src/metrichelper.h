@@ -6,6 +6,7 @@
 #pragma once
 
 #include <string>
+
 namespace metric {
 /** \brief Converts a float to string without loosing precision.
  *
@@ -22,5 +23,9 @@ namespace metric {
  * @return The double value as text
  */
 [[nodiscard]] std::string DoubleToString(double value);
+
+[[nodiscard]] uint64_t NowNs();
+[[nodiscard]] std::string NanoSecToIso8601(uint64_t ns1970);
+[[nodiscard]] uint64_t Iso8601ToNanoSec(const std::string iso_time);
 }  // namespace metric
 

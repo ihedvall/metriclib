@@ -1,4 +1,11 @@
 
+/*
+* Copyright 2025 Ingemar Hedvall
+* SPDX-License-Identifier: MIT
+*/
+
+#pragma once
+
 #include <cstdint>
 #include <string>
 #include <algorithm>

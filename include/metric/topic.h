@@ -5,12 +5,13 @@
 
 #pragma once
 #include <string>
-#include <sstream>
+#include <utility>
 #include <vector>
 #include <cstdint>
 #include <mutex>
 #include <memory>
 #include <algorithm>
+#include <functional>
 
 #include "metric/metric.h"
 
@@ -21,6 +22,8 @@ enum class QualityOfService : int {
   Qos1 = 1, ///< At least once. The message will be delivered.
   Qos2 = 2, ///< Once and once only. The message will be delivered.
 };
+
+using OnTopicMessage = std::function<void()>;
 
 class Topic {
  public:
@@ -77,6 +80,16 @@ class Topic {
     return content_type_;
   }
 
+  void Body(std::vector<uint8_t> body) { body_ = std::move(body); }
+  const std::vector<uint8_t>& Body() const { return body_; }
+  std::vector<uint8_t>& Body() { return body_; }
+
+  std::string BodyToString() const;
+  void StringToBody(const std::string& text);
+
+  void Timestamp(uint64_t ns_since_1970) { ns_since_1970_ = ns_since_1970;}
+  [[nodiscard]] uint64_t Timestamp() const { return ns_since_1970_; }
+
   void Publishing(bool publish) {
     publish_ = publish;
   }
@@ -103,6 +116,7 @@ class Topic {
 
   [[nodiscard]] bool IsWildcard() const;
 
+  std::shared_ptr<Metric> CreateMetric(std::string metric_name);
   void AddMetric(const std::shared_ptr<Metric>& metric);
   void RemoveMetric(std::string name);
   const std::vector<std::shared_ptr<Metric>>& Metrics() const {
@@ -114,7 +128,7 @@ class Topic {
 
   std::shared_ptr<Metric> GetMetric(const std::string& name) const;
 
-  void SetAllMetricsInvalid();
+  void SetAllMetricsInvalid() const;
 
   [[nodiscard]] bool IsText() const {
     return content_type_.empty() || content_type_.find("text") != std::string::npos;
@@ -130,12 +144,21 @@ class Topic {
   [[nodiscard]] bool IsProtobuf() const {
     return content_type_.find("protobuf") != std::string::npos;
   }
+
+  void SetOnTopicMessage(OnTopicMessage message_callback) {
+    message_callback_ = std::move(message_callback);
+  }
+
+  virtual void OnMessage();
+  virtual void OnPublish();
+
  protected:
   mutable std::recursive_mutex topic_mutex_;
-
- private:
+  std::vector<std::shared_ptr<Metric>> metric_list_;
+  OnTopicMessage message_callback_;
   std::string content_type_;    ///< MIME type of data (MQTT 5)
 
+ private:
   mutable std::string name_;   ///< MQTT topic name.
        ///< If empty '<namespace>/<group_id>/<message_type>/<node_id>/<device_id>'
   std::string description_;
@@ -145,11 +168,14 @@ class Topic {
   std::string node_id_;
   std::string device_id_;
 
-  std::vector<std::shared_ptr<Metric>> metric_list_;
+
 
   bool publish_ = false;
   QualityOfService qos_ = QualityOfService::Qos0;
   bool retained_ = false;
+
+  std::vector<uint8_t> body_;
+  uint64_t ns_since_1970_ = 0; ///< Note nanoseconds since 1970
 
   void AssignLevelName(size_t level, const std::string& name);
 };

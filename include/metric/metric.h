@@ -11,6 +11,7 @@
 #include <map>
 #include <mutex>
 
+
 #include "metric/metrictype.h"
 #include "metric/metricproperty.h"
 
@@ -26,6 +27,7 @@ class Metric {
   Metric() = default;
   explicit Metric(std::string name);
   explicit Metric(const std::string_view& name);
+  explicit Metric(const char* name);
 
   void Name(std::string name);
   [[nodiscard]] std::string Name() const;
@@ -43,8 +45,8 @@ class Metric {
     return identity_;
   }
 
-  void Timestamp(uint64_t ms_since_1970) {
-    timestamp_ = ms_since_1970;
+  void Timestamp(uint64_t ns_since_1970) {
+    timestamp_ = ns_since_1970;
   }
 
   [[nodiscard]] uint64_t Timestamp() const {
@@ -83,15 +85,23 @@ class Metric {
   }
 
   void Null(bool null_value) {
-    is_null_ = null_value;
+    if (is_null_ != null_value) {
+      is_null_ = null_value;
+      SetUpdated();
+    }
   }
+
   [[nodiscard]] bool IsNull() const {
     return is_null_;
   }
 
   void Valid(bool valid) const {
-    valid_ = valid;
+    if (valid_ != valid ) {
+      valid_ = valid;
+      SetUpdated();
+    }
   }
+
   [[nodiscard]] bool IsValid() const {
     return valid_;
   }
@@ -119,12 +129,14 @@ class Metric {
   template<typename T>
   [[nodiscard]] T Value() const;
 
-
-  void SetUpdated() { updated_ = true; }
-  void ResetUpdated() { updated_ = false; }
+  void SetUpdated() const { updated_ = true; }
+  void ResetUpdated() const { updated_ = false; }
   [[nodiscard]] bool IsUpdated() {
     return updated_;
   }
+  
+  void Selected(bool selected) { selected_ = selected; }
+  [[nodiscard]] bool IsSelected() { return selected_; }
 
  private:
   std::string name_;
@@ -132,20 +144,20 @@ class Metric {
   int64_t group_identity_ = 0;
   std::atomic<uint64_t> identity_ = 0;
   std::atomic<uint64_t> timestamp_ = 0;
-  std::atomic<MetricType> data_type_ = MetricType::String;
+  std::atomic<MetricType> data_type_ = MetricType::Unknown;
   std::atomic<bool> is_historical_ = false;
   std::atomic<bool> is_transient_ = false;
   std::atomic<bool> is_null_ = false;
-
   mutable std::atomic<bool> valid_ = false; ///< Indicate if the metric is GOOD or STALE
   std::atomic<bool> read_only_ = false; ///< Indicate if the metric can be changes remotely
+  bool selected_ = false;
 
   MetricPropertyList property_list_;
 
   mutable std::recursive_mutex metric_mutex_;
   std::string value_;
 
-  std::atomic<bool> updated_ = false;
+  mutable std::atomic<bool> updated_ = false;
 
   std::string GetStringProperty(const std::string& key) const;
   void SetStringProperty(std::string key, std::string value);
