@@ -32,11 +32,15 @@ class MetricGroup {
   void Identity(int64_t identity) { identity_ = identity; }
   [[nodiscard]] int64_t Identity() const { return identity_; }
 
+  void Context(void *context) { context_ = context; }
+  void *Context() const { return context_; }
+
  private:
   std::string name_;
   std::string description_;
   TypeOfGroup type_ = TypeOfGroup::General;
   int64_t identity_ = 0;
+  void *context_ = nullptr;
 
 };
 

@@ -82,10 +82,12 @@ void MetricDatabase::Enable(bool enable) {
 }
 
 std::shared_ptr<MetricGroup> MetricDatabase::CreateGroup(std::string name,
-                                                         int32_t identity) {
-  auto itr = std::ranges::find_if(group_list_, [&](const auto& group) -> bool {
+                                                         int64_t identity) {
+  auto itr = std::ranges::find_if(group_list_,
+    [&](const auto& group) -> bool {
     return group && group->Name() == name && group->Identity() == identity;
   });
+
   if (itr == group_list_.end()) {
     if (auto new_group = std::make_unique<MetricGroup>(); new_group) {
       new_group->Name(std::move(name));
@@ -98,7 +100,7 @@ std::shared_ptr<MetricGroup> MetricDatabase::CreateGroup(std::string name,
   return group_list_.back();
 }
 
-void MetricDatabase::DeleteGroup(std::string name, uint32_t identity) {
+void MetricDatabase::DeleteGroup(std::string name, int64_t identity) {
   std::erase_if(group_list_, [&](const auto& group) -> bool {
     return !group || (group->Name() == name && group->Identity() == identity);
   });

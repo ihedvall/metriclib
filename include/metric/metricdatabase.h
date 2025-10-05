@@ -47,8 +47,8 @@ class MetricDatabase {
   [[nodiscard]] virtual bool IsOperable() const {return operable_; }
 
   virtual std::shared_ptr<MetricGroup> CreateGroup(std::string name,
-                                                   int32_t identity);
-  void DeleteGroup(std::string name, uint32_t identity);
+                                                   int64_t identity);
+  void DeleteGroup(std::string name, int64_t identity);
 
   const std::vector<std::shared_ptr<MetricGroup>>& Groups() const {
     return group_list_;
@@ -58,7 +58,8 @@ class MetricDatabase {
   std::shared_ptr<MetricGroup> GetGroupByIdentity(int64_t identity) const;
   void SortGroups();
 
-  virtual std::shared_ptr<Metric> CreateMetric(const MetricGroup& group, std::string name);
+  virtual std::shared_ptr<Metric> CreateMetric(const MetricGroup& group,
+    std::string name);
   void DeleteMetric(const MetricGroup& group, std::string name);
   const std::vector<std::shared_ptr<Metric>>& Metrics() const {
     return metric_list_;
@@ -73,6 +74,10 @@ class MetricDatabase {
                                   const std::string& metric_name) const;
   void SortMetricsByGroup();
   void SortMetricsByName();
+
+  void Context(void* context) { context_ = context; }
+  void* Context() const { return context_; }
+
  protected:
   std::atomic<bool> enabled_ = false;
   std::atomic<bool> operable_ = false;
@@ -80,6 +85,7 @@ class MetricDatabase {
 
   std::vector<std::shared_ptr<MetricGroup>> group_list_;
   std::vector<std::shared_ptr<Metric>> metric_list_;
+  void *context_ = nullptr;
  private:
   std::string name_;
   std::string description_;

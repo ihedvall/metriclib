@@ -7,10 +7,8 @@
 #include <cstdint>
 #include <string>
 #include <atomic>
-#include <vector>
 #include <map>
 #include <mutex>
-
 
 #include "metric/metrictype.h"
 #include "metric/metricproperty.h"
@@ -134,9 +132,12 @@ class Metric {
   [[nodiscard]] bool IsUpdated() {
     return updated_;
   }
-  
+
   void Selected(bool selected) { selected_ = selected; }
-  [[nodiscard]] bool IsSelected() { return selected_; }
+  [[nodiscard]] bool IsSelected() const { return selected_; }
+
+  void Context(void *context) { context_ = context; }
+  void* Context() const { return context_; }
 
  private:
   std::string name_;
@@ -158,6 +159,7 @@ class Metric {
   std::string value_;
 
   mutable std::atomic<bool> updated_ = false;
+  void *context_ = nullptr;
 
   std::string GetStringProperty(const std::string& key) const;
   void SetStringProperty(std::string key, std::string value);
