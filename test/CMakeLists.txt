@@ -20,6 +20,7 @@ add_executable(metric-test
         src/test_metricnode.cpp
         src/testmqtt.cpp
         src/testmqtt.h
+        src/test_metriclisten.cpp
 
 )
 

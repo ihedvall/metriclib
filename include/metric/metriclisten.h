@@ -7,11 +7,12 @@
 #include <string>
 #include <functional>
 #include <algorithm>
+#include <sstream>
 
 namespace metric {
 
 using ListenFunction = std::function<void(const std::string& pre_text,
-  uint64_t timestamp, std::string text)>;
+  uint64_t timestamp, const std::string& text)>;
 
 class MetricListen {
  public:
@@ -36,6 +37,13 @@ class MetricListen {
 
   void ListenString(std::string text) {
     OnAddMessage(0, std::move(text));
+  }
+
+  template <typename... Args>
+  void ListenArgs(Args... args ) {
+    std::ostringstream temp;
+    (temp << ... << args);
+    OnAddMessage(0, temp.str());
   }
 
   static void LogToConsole( const std::string& pre_text,

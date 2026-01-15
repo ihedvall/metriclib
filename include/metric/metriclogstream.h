@@ -10,8 +10,9 @@
 */
 #pragma once
 
-#include <sstream>
+#include <cstdint>
 #include <string>
+#include <sstream>
 #include <source_location>
 #include <functional>
 
